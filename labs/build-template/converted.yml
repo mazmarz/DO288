@@ -1,0 +1,224 @@
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: Secret
+  metadata:
+    labels:
+      app: php-app
+      template: php-mysql-ephemeral
+    name: php-app
+  stringData:
+    database-password: mypass
+    database-user: mazmarz
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      description: Exposes and load balances the application pods
+      service.alpha.openshift.io/dependencies: '[{"name": "mysql", "kind": "Service"}]'
+    labels:
+      app: php-app
+      template: php-mysql-ephemeral
+    name: php-app
+  spec:
+    ports:
+    - name: web
+      port: 8080
+      targetPort: 8080
+    selector:
+      app: php-app
+- apiVersion: route.openshift.io/v1
+  kind: Route
+  metadata:
+    annotations:
+      template.openshift.io/expose-uri: http://{.spec.host}{.spec.path}
+    labels:
+      app: php-app
+      template: php-mysql-ephemeral
+    name: php-app
+  spec:
+    host: ""
+    to:
+      kind: Service
+      name: php-app
+- apiVersion: image.openshift.io/v1
+  kind: ImageStream
+  metadata:
+    annotations:
+      description: Keeps track of changes in the application image
+    labels:
+      app: php-app
+      template: php-mysql-ephemeral
+    name: php-app
+- apiVersion: build.openshift.io/v1
+  kind: BuildConfig
+  metadata:
+    annotations:
+      description: Defines how to build the application
+    labels:
+      app: php-app
+      template: php-mysql-ephemeral
+    name: php-app
+  spec:
+    output:
+      to:
+        kind: ImageStreamTag
+        name: php-app:latest
+    source:
+      contextDir: ""
+      git:
+        ref: ""
+        uri: ""
+      type: Git
+    strategy:
+      sourceStrategy:
+        from:
+          kind: ImageStreamTag
+          name: php:7.2
+          namespace: openshift
+      type: Source
+    triggers:
+    - type: ImageChange
+    - type: ConfigChange
+    - github:
+        secret: 3rRqXikrDlcX1wHbRVkJnHfO3lMcwlnFFxCN4thX
+      type: GitHub
+- apiVersion: apps.openshift.io/v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      description: Defines how to deploy the PHP application
+    labels:
+      app: php-app
+      template: php-mysql-ephemeral
+    name: php-app
+  spec:
+    replicas: 1
+    selector:
+      app: php-app
+    strategy:
+      type: Recreate
+    template:
+      metadata:
+        labels:
+          app: php-app
+        name: php-app
+      spec:
+        containers:
+        - env:
+          - name: DATABASE_SERVICE_NAME
+            value: mysql
+          - name: DATABASE_NAME
+            value: phpapp
+          - name: DATABASE_USER
+            valueFrom:
+              secretKeyRef:
+                key: database-user
+                name: php-app
+          - name: DATABASE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: database-password
+                name: php-app
+          image: ' '
+          name: php-app
+          ports:
+          - containerPort: 8080
+    triggers:
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - php-app
+        from:
+          kind: ImageStreamTag
+          name: php-app:latest
+      type: ImageChange
+    - type: ConfigChange
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      description: Exposes the database server
+    labels:
+      app: mysql
+      template: php-mysql-ephemeral
+    name: mysql
+  spec:
+    ports:
+    - name: mysql
+      port: 3306
+      targetPort: 3306
+    selector:
+      app: mysql
+- apiVersion: apps.openshift.io/v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      description: Defines how to deploy the database
+    labels:
+      app: mysql
+      template: php-mysql-ephemeral
+    name: mysql
+  spec:
+    replicas: 1
+    selector:
+      app: mysql
+    strategy:
+      type: Recreate
+    template:
+      metadata:
+        labels:
+          app: mysql
+        name: mysql
+      spec:
+        containers:
+        - env:
+          - name: MYSQL_USER
+            valueFrom:
+              secretKeyRef:
+                key: database-user
+                name: php-app
+          - name: MYSQL_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: database-password
+                name: php-app
+          - name: MYSQL_DATABASE
+            value: phpapp
+          image: ' '
+          livenessProbe:
+            initialDelaySeconds: 30
+            tcpSocket:
+              port: 3306
+            timeoutSeconds: 1
+          name: mysql
+          ports:
+          - containerPort: 3306
+          readinessProbe:
+            exec:
+              command:
+              - /bin/sh
+              - -i
+              - -c
+              - MYSQL_PWD='mypass' mysql -h 127.0.0.1 -u mazmarz -D phpapp -e 'SELECT 1'
+            initialDelaySeconds: 5
+            timeoutSeconds: 1
+          volumeMounts:
+          - mountPath: /var/lib/mysql/data
+            name: data
+        volumes:
+        - emptyDir: {}
+          name: data
+    triggers:
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - mysql
+        from:
+          kind: ImageStreamTag
+          name: mysql:5.7
+          namespace: openshift
+      type: ImageChange
+    - type: ConfigChange
+kind: List
+metadata: {}

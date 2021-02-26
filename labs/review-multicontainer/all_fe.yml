@@ -1,0 +1,103 @@
+  - apiVersion: image.openshift.io/v1
+    kind: ImageStream
+    metadata:
+      annotations:
+        openshift.io/image.dockerRepositoryCheck: "2021-01-29T11:15:35Z"
+      name: fe
+      namespace: front-end
+    spec:
+      lookupPolicy:
+        local: false
+      tags:
+        - annotations: null
+          from:
+            kind: DockerImage
+            name: image-registry.openshift-image-registry.svc:5000/common/front-end:latest
+          generation: 2
+          importPolicy: {}
+          name: latest
+          referencePolicy:
+            type: Source
+  - apiVersion: apps.openshift.io/v1
+    kind: DeploymentConfig
+    metadata:
+      annotations:
+        openshift.io/generated-by: OpenShiftNewApp
+      labels:
+        app: fe
+      name: fe
+      namespace: front-end
+    spec:
+      replicas: 1
+      revisionHistoryLimit: 10
+      selector:
+        app: fe
+        deploymentconfig: fe
+      strategy:
+        activeDeadlineSeconds: 21600
+        resources: {}
+        rollingParams:
+          intervalSeconds: 1
+          maxSurge: 25%
+          maxUnavailable: 25%
+          timeoutSeconds: 600
+          updatePeriodSeconds: 1
+        type: Rolling
+      template:
+        metadata:
+          annotations:
+            openshift.io/generated-by: OpenShiftNewApp
+          creationTimestamp: null
+          labels:
+            app: fe
+            deploymentconfig: fe
+        spec:
+          containers:
+            - image: image-registry.openshift-image-registry.svc:5000/common/front-end@sha256:97a3a924341fdf304cebde144b248d04a35c92ebc45bbd0b3db400a538449130
+              imagePullPolicy: Always
+              name: fe
+              ports:
+                - containerPort: 8080
+                  protocol: TCP
+              resources: {}
+              terminationMessagePath: /dev/termination-log
+              terminationMessagePolicy: File
+          dnsPolicy: ClusterFirst
+          restartPolicy: Always
+          schedulerName: default-scheduler
+          securityContext: {}
+          terminationGracePeriodSeconds: 30
+      test: false
+      triggers:
+        - type: ConfigChange
+        - imageChangeParams:
+            automatic: true
+            containerNames:
+              - fe
+            from:
+              kind: ImageStreamTag
+              name: front-end:latest
+              namespace: common
+            lastTriggeredImage: image-registry.openshift-image-registry.svc:5000/common/front-end@sha256:97a3a924341fdf304cebde144b248d04a35c92ebc45bbd0b3db400a538449130
+          type: ImageChange
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      annotations:
+        openshift.io/generated-by: OpenShiftNewApp
+      creationTimestamp: "2021-01-29T11:15:34Z"
+      labels:
+        app: fe
+      name: fe
+      namespace: front-end
+    spec:
+      ports:
+        - name: 8080-tcp
+          port: 8080
+          protocol: TCP
+          targetPort: 8080
+      selector:
+        app: fe
+        deploymentconfig: fe
+      sessionAffinity: None
+      type: ClusterIP

@@ -1,0 +1,83 @@
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  labels:
+    app: be
+    temp: fe-be
+  name: be
+  namespace: multiservice
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    app: be
+    deploymentconfig: be
+  strategy:
+    activeDeadlineSeconds: 21600
+    resources: {}
+    rollingParams:
+      intervalSeconds: 1
+      maxSurge: 25%
+      maxUnavailable: 25%
+      timeoutSeconds: 600
+      updatePeriodSeconds: 1
+    type: Rolling
+  template:
+    metadata:
+      annotations:
+        openshift.io/generated-by: OpenShiftNewApp
+      creationTimestamp: null
+      labels:
+        app: be
+        deploymentconfig: be
+    spec:
+      containers:
+        - env:
+            - name: DATABASE_NAME
+              valueFrom:
+                secretKeyRef:
+                  key: database
+                  name: tododb
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: tododb
+            - name: DATABASE_SVC
+              valueFrom:
+                secretKeyRef:
+                  key: svc
+                  name: tododb
+            - name: DATABASE_USER
+              valueFrom:
+                secretKeyRef:
+                  key: user
+                  name: tododb
+            - name: DATABASE_INIT
+              valueFrom:
+                configMapKeyRef:
+                  key: init
+                  name: tododb
+          imagePullPolicy: Always
+          name: be
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+  test: false
+  triggers:
+    - imageChangeParams:
+        containerNames:
+          - be
+        from:
+          kind: ImageStreamTag
+          name: be:latest
+          namespace: multiservice
+      type: ImageChange

@@ -1,0 +1,7 @@
+apiVersion: v1
+data:
+  init: "true"
+kind: ConfigMap
+metadata:
+  name: tododb
+  namespace: service

@@ -1,0 +1,907 @@
+apiVersion: v1
+items:
+- apiVersion: route.openshift.io/v1
+  kind: Route
+  metadata:
+    annotations:
+      openshift.io/host.generated: "true"
+    creationTimestamp: "2021-01-30T11:15:53Z"
+    labels:
+      app: be
+    managedFields:
+    - apiVersion: route.openshift.io/v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:metadata:
+          f:labels:
+            .: {}
+            f:app: {}
+        f:spec:
+          f:port:
+            .: {}
+            f:targetPort: {}
+          f:to:
+            f:kind: {}
+            f:name: {}
+            f:weight: {}
+          f:wildcardPolicy: {}
+      manager: kubectl-expose
+      operation: Update
+      time: "2021-01-30T11:15:53Z"
+    - apiVersion: route.openshift.io/v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:status:
+          f:ingress: {}
+      manager: openshift-router
+      operation: Update
+      time: "2021-01-30T11:15:54Z"
+    name: be
+    namespace: service
+    resourceVersion: "648052"
+    selfLink: /apis/route.openshift.io/v1/namespaces/service/routes/be
+    uid: e8626524-9c6b-47c6-a330-c8311a216a84
+  spec:
+    host: be-service.apps.cluster-e448.sandbox254.opentlc.com
+    port:
+      targetPort: 8080-tcp
+    to:
+      kind: Service
+      name: be
+      weight: 100
+    wildcardPolicy: None
+  status:
+    ingress:
+    - conditions:
+      - lastTransitionTime: "2021-01-30T11:15:54Z"
+        status: "True"
+        type: Admitted
+      host: be-service.apps.cluster-e448.sandbox254.opentlc.com
+      routerCanonicalHostname: apps.cluster-e448.sandbox254.opentlc.com
+      routerName: default
+      wildcardPolicy: None
+- apiVersion: image.openshift.io/v1
+  kind: ImageStream
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: "2021-01-30T11:10:16Z"
+    generation: 1
+    labels:
+      app: be
+    managedFields:
+    - apiVersion: image.openshift.io/v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:metadata:
+          f:annotations:
+            .: {}
+            f:openshift.io/generated-by: {}
+          f:labels:
+            .: {}
+            f:app: {}
+      manager: oc
+      operation: Update
+      time: "2021-01-30T11:10:16Z"
+    name: be
+    namespace: service
+    resourceVersion: "646725"
+    selfLink: /apis/image.openshift.io/v1/namespaces/service/imagestreams/be
+    uid: d7c80472-0eca-48d2-9270-2d2a03853f28
+  spec:
+    lookupPolicy:
+      local: false
+  status:
+    dockerImageRepository: image-registry.openshift-image-registry.svc:5000/service/be
+    tags:
+    - items:
+      - created: "2021-01-30T11:11:20Z"
+        dockerImageReference: image-registry.openshift-image-registry.svc:5000/service/be@sha256:d0dea3a488f43be0d5617fcf90f60858adcd8e37c503ef757640e1972322c05e
+        generation: 1
+        image: sha256:d0dea3a488f43be0d5617fcf90f60858adcd8e37c503ef757640e1972322c05e
+      tag: latest
+- apiVersion: image.openshift.io/v1
+  kind: ImageStream
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+      openshift.io/image.dockerRepositoryCheck: "2021-01-29T15:20:14Z"
+    creationTimestamp: "2021-01-29T15:20:13Z"
+    generation: 2
+    labels:
+      app: tododb
+      app.kubernetes.io/component: tododb
+      app.kubernetes.io/instance: tododb
+    managedFields:
+    - apiVersion: image.openshift.io/v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:metadata:
+          f:annotations:
+            .: {}
+            f:openshift.io/generated-by: {}
+          f:labels:
+            .: {}
+            f:app: {}
+            f:app.kubernetes.io/component: {}
+            f:app.kubernetes.io/instance: {}
+        f:spec:
+          f:tags:
+            .: {}
+            k:{"name":"latest"}:
+              .: {}
+              f:annotations:
+                .: {}
+                f:openshift.io/imported-from: {}
+              f:from:
+                .: {}
+                f:kind: {}
+                f:name: {}
+              f:generation: {}
+              f:importPolicy: {}
+              f:name: {}
+              f:referencePolicy:
+                .: {}
+                f:type: {}
+      manager: oc
+      operation: Update
+      time: "2021-01-29T15:20:13Z"
+    name: tododb
+    namespace: service
+    resourceVersion: "303897"
+    selfLink: /apis/image.openshift.io/v1/namespaces/service/imagestreams/tododb
+    uid: 7eb21420-9c2c-4129-af94-6c0f867049d4
+  spec:
+    lookupPolicy:
+      local: false
+    tags:
+    - annotations:
+        openshift.io/imported-from: registry.access.redhat.com/rhscl/mysql-57-rhel7
+      from:
+        kind: DockerImage
+        name: registry.access.redhat.com/rhscl/mysql-57-rhel7
+      generation: 2
+      importPolicy: {}
+      name: latest
+      referencePolicy:
+        type: Source
+  status:
+    dockerImageRepository: image-registry.openshift-image-registry.svc:5000/service/tododb
+    tags:
+    - items:
+      - created: "2021-01-29T15:20:14Z"
+        dockerImageReference: registry.access.redhat.com/rhscl/mysql-57-rhel7@sha256:9a781abe7581cc141e14a7e404ec34125b3e89c008b14f4e7b41e094fd3049fe
+        generation: 2
+        image: sha256:9a781abe7581cc141e14a7e404ec34125b3e89c008b14f4e7b41e094fd3049fe
+      tag: latest
+- apiVersion: build.openshift.io/v1
+  kind: BuildConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: "2021-01-30T11:10:16Z"
+    labels:
+      app: be
+    managedFields:
+    - apiVersion: build.openshift.io/v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:metadata:
+          f:annotations:
+            .: {}
+            f:openshift.io/generated-by: {}
+          f:labels:
+            .: {}
+            f:app: {}
+        f:spec:
+          f:output:
+            f:to:
+              .: {}
+              f:kind: {}
+              f:name: {}
+          f:runPolicy: {}
+          f:source:
+            f:contextDir: {}
+            f:git:
+              .: {}
+              f:ref: {}
+              f:uri: {}
+            f:type: {}
+          f:strategy:
+            f:sourceStrategy:
+              .: {}
+              f:from:
+                .: {}
+                f:kind: {}
+                f:name: {}
+                f:namespace: {}
+            f:type: {}
+      manager: oc
+      operation: Update
+      time: "2021-01-30T11:10:16Z"
+    - apiVersion: build.openshift.io/v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:spec:
+          f:triggers: {}
+        f:status:
+          f:lastVersion: {}
+      manager: openshift-apiserver
+      operation: Update
+      time: "2021-01-30T11:10:16Z"
+    name: be
+    namespace: service
+    resourceVersion: "646361"
+    selfLink: /apis/build.openshift.io/v1/namespaces/service/buildconfigs/be
+    uid: 3de3a403-8c1f-4eb9-b522-24cbe0eed3fa
+  spec:
+    failedBuildsHistoryLimit: 5
+    nodeSelector: null
+    output:
+      to:
+        kind: ImageStreamTag
+        name: be:latest
+    postCommit: {}
+    resources: {}
+    runPolicy: Serial
+    source:
+      contextDir: todo-backend
+      git:
+        ref: todo-backend
+        uri: https://github.com/mazmarz/DO288-apps
+      type: Git
+    strategy:
+      sourceStrategy:
+        from:
+          kind: ImageStreamTag
+          name: nodejs:12
+          namespace: service
+      type: Source
+    successfulBuildsHistoryLimit: 5
+    triggers:
+    - github:
+        secret: R05ZGCQ2XEp8wD-dN_Rf
+      type: GitHub
+    - generic:
+        secret: TQ1h26rS5hgogcCStMxf
+      type: Generic
+    - type: ConfigChange
+    - imageChange:
+        lastTriggeredImageID: image-registry.openshift-image-registry.svc:5000/openshift/nodejs@sha256:9b0daafe22b29cace705d726e2b458346b81484026fbc7812f56511a49a0a143
+      type: ImageChange
+  status:
+    lastVersion: 1
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: "2021-01-30T11:10:16Z"
+    labels:
+      app: be
+    managedFields:
+    - apiVersion: v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:metadata:
+          f:annotations:
+            .: {}
+            f:openshift.io/generated-by: {}
+          f:labels:
+            .: {}
+            f:app: {}
+        f:spec:
+          f:ports:
+            .: {}
+            k:{"port":8080,"protocol":"TCP"}:
+              .: {}
+              f:name: {}
+              f:port: {}
+              f:protocol: {}
+              f:targetPort: {}
+          f:selector:
+            .: {}
+            f:app: {}
+            f:deploymentconfig: {}
+          f:sessionAffinity: {}
+          f:type: {}
+      manager: oc
+      operation: Update
+      time: "2021-01-30T11:10:16Z"
+    name: be
+    namespace: service
+    resourceVersion: "646356"
+    selfLink: /api/v1/namespaces/service/services/be
+    uid: 91fb9da4-51c2-4fd9-b962-ec001f96d83e
+  spec:
+    clusterIP: 172.30.59.14
+    ports:
+    - name: 8080-tcp
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      app: be
+      deploymentconfig: be
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: "2021-01-29T15:20:13Z"
+    labels:
+      app: tododb
+      app.kubernetes.io/component: tododb
+      app.kubernetes.io/instance: tododb
+    managedFields:
+    - apiVersion: v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:metadata:
+          f:annotations:
+            .: {}
+            f:openshift.io/generated-by: {}
+          f:labels:
+            .: {}
+            f:app: {}
+            f:app.kubernetes.io/component: {}
+            f:app.kubernetes.io/instance: {}
+        f:spec:
+          f:ports:
+            .: {}
+            k:{"port":3306,"protocol":"TCP"}:
+              .: {}
+              f:name: {}
+              f:port: {}
+              f:protocol: {}
+              f:targetPort: {}
+          f:selector:
+            .: {}
+            f:deploymentconfig: {}
+          f:sessionAffinity: {}
+          f:type: {}
+      manager: oc
+      operation: Update
+      time: "2021-01-29T15:20:13Z"
+    name: tododb
+    namespace: service
+    resourceVersion: "303891"
+    selfLink: /api/v1/namespaces/service/services/tododb
+    uid: 55ffb511-aad1-482b-be02-c6c0ee8f6c23
+  spec:
+    clusterIP: 172.30.167.92
+    ports:
+    - name: 3306-tcp
+      port: 3306
+      protocol: TCP
+      targetPort: 3306
+    selector:
+      deploymentconfig: tododb
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: apps.openshift.io/v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: "2021-01-30T11:10:16Z"
+    generation: 8
+    labels:
+      app: be
+    managedFields:
+    - apiVersion: apps.openshift.io/v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:metadata:
+          f:annotations:
+            .: {}
+            f:openshift.io/generated-by: {}
+          f:labels:
+            .: {}
+            f:app: {}
+        f:spec:
+          f:replicas: {}
+          f:selector:
+            .: {}
+            f:app: {}
+            f:deploymentconfig: {}
+          f:strategy:
+            f:activeDeadlineSeconds: {}
+            f:rollingParams:
+              .: {}
+              f:intervalSeconds: {}
+              f:maxSurge: {}
+              f:maxUnavailable: {}
+              f:timeoutSeconds: {}
+              f:updatePeriodSeconds: {}
+            f:type: {}
+          f:template:
+            .: {}
+            f:metadata:
+              .: {}
+              f:annotations:
+                .: {}
+                f:openshift.io/generated-by: {}
+              f:creationTimestamp: {}
+              f:labels:
+                .: {}
+                f:app: {}
+                f:deploymentconfig: {}
+            f:spec:
+              .: {}
+              f:containers:
+                .: {}
+                k:{"name":"be"}:
+                  .: {}
+                  f:env:
+                    .: {}
+                    k:{"name":"DATABASE_DATABASE"}:
+                      .: {}
+                      f:name: {}
+                      f:valueFrom:
+                        .: {}
+                        f:secretKeyRef:
+                          .: {}
+                          f:key: {}
+                          f:name: {}
+                    k:{"name":"DATABASE_INIT"}:
+                      .: {}
+                      f:name: {}
+                      f:valueFrom:
+                        .: {}
+                        f:configMapKeyRef:
+                          .: {}
+                          f:key: {}
+                          f:name: {}
+                    k:{"name":"DATABASE_NAME"}:
+                      .: {}
+                      f:name: {}
+                      f:value: {}
+                    k:{"name":"DATABASE_PASSWORD"}:
+                      .: {}
+                      f:name: {}
+                      f:valueFrom:
+                        .: {}
+                        f:secretKeyRef:
+                          .: {}
+                          f:key: {}
+                          f:name: {}
+                    k:{"name":"DATABASE_SVC"}:
+                      .: {}
+                      f:name: {}
+                      f:valueFrom:
+                        .: {}
+                        f:secretKeyRef:
+                          .: {}
+                          f:key: {}
+                          f:name: {}
+                    k:{"name":"DATABASE_USER"}:
+                      .: {}
+                      f:name: {}
+                      f:valueFrom:
+                        .: {}
+                        f:secretKeyRef:
+                          .: {}
+                          f:key: {}
+                          f:name: {}
+                  f:imagePullPolicy: {}
+                  f:name: {}
+                  f:ports:
+                    .: {}
+                    k:{"containerPort":8080,"protocol":"TCP"}:
+                      .: {}
+                      f:containerPort: {}
+                      f:protocol: {}
+                  f:resources: {}
+                  f:terminationMessagePath: {}
+                  f:terminationMessagePolicy: {}
+              f:dnsPolicy: {}
+              f:restartPolicy: {}
+              f:schedulerName: {}
+              f:securityContext: {}
+              f:terminationGracePeriodSeconds: {}
+          f:triggers: {}
+      manager: oc
+      operation: Update
+      time: "2021-01-30T13:07:34Z"
+    - apiVersion: apps.openshift.io/v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:spec:
+          f:template:
+            f:spec:
+              f:containers:
+                k:{"name":"be"}:
+                  f:image: {}
+        f:status:
+          f:availableReplicas: {}
+          f:conditions:
+            .: {}
+            k:{"type":"Available"}:
+              .: {}
+              f:lastTransitionTime: {}
+              f:lastUpdateTime: {}
+              f:message: {}
+              f:status: {}
+              f:type: {}
+            k:{"type":"Progressing"}:
+              .: {}
+              f:lastTransitionTime: {}
+              f:lastUpdateTime: {}
+              f:message: {}
+              f:reason: {}
+              f:status: {}
+              f:type: {}
+          f:details:
+            .: {}
+            f:causes: {}
+            f:message: {}
+          f:latestVersion: {}
+          f:observedGeneration: {}
+          f:readyReplicas: {}
+          f:replicas: {}
+          f:unavailableReplicas: {}
+          f:updatedReplicas: {}
+      manager: openshift-controller-manager
+      operation: Update
+      time: "2021-01-30T13:08:18Z"
+    name: be
+    namespace: service
+    resourceVersion: "680254"
+    selfLink: /apis/apps.openshift.io/v1/namespaces/service/deploymentconfigs/be
+    uid: 0746febe-2bf6-4b3f-a5e9-9a735204df92
+  spec:
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      app: be
+      deploymentconfig: be
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        annotations:
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          app: be
+          deploymentconfig: be
+      spec:
+        containers:
+        - env:
+          - name: DATABASE_DATABASE
+            valueFrom:
+              secretKeyRef:
+                key: database
+                name: tododb
+          - name: DATABASE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: password
+                name: tododb
+          - name: DATABASE_SVC
+            valueFrom:
+              secretKeyRef:
+                key: svc
+                name: tododb
+          - name: DATABASE_USER
+            valueFrom:
+              secretKeyRef:
+                key: user
+                name: tododb
+          - name: DATABASE_INIT
+            valueFrom:
+              configMapKeyRef:
+                key: init
+                name: tododb
+          - name: DATABASE_NAME
+            value: todo
+          image: image-registry.openshift-image-registry.svc:5000/service/be@sha256:d0dea3a488f43be0d5617fcf90f60858adcd8e37c503ef757640e1972322c05e
+          imagePullPolicy: Always
+          name: be
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+    test: false
+    triggers:
+    - imageChangeParams:
+        containerNames:
+        - be
+        from:
+          kind: ImageStreamTag
+          name: be:latest
+          namespace: service
+        lastTriggeredImage: image-registry.openshift-image-registry.svc:5000/service/be@sha256:d0dea3a488f43be0d5617fcf90f60858adcd8e37c503ef757640e1972322c05e
+      type: ImageChange
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2021-01-30T11:11:28Z"
+      lastUpdateTime: "2021-01-30T11:11:28Z"
+      message: Deployment config has minimum availability.
+      status: "True"
+      type: Available
+    - lastTransitionTime: "2021-01-30T13:08:16Z"
+      lastUpdateTime: "2021-01-30T13:08:18Z"
+      message: replication controller "be-3" successfully rolled out
+      reason: NewReplicationControllerAvailable
+      status: "True"
+      type: Progressing
+    details:
+      causes:
+      - type: Manual
+      message: manual change
+    latestVersion: 3
+    observedGeneration: 8
+    readyReplicas: 1
+    replicas: 1
+    unavailableReplicas: 0
+    updatedReplicas: 1
+- apiVersion: apps.openshift.io/v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: "2021-01-29T15:20:13Z"
+    generation: 3
+    labels:
+      app: tododb
+      app.kubernetes.io/component: tododb
+      app.kubernetes.io/instance: tododb
+    managedFields:
+    - apiVersion: apps.openshift.io/v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:metadata:
+          f:annotations:
+            .: {}
+            f:openshift.io/generated-by: {}
+          f:labels:
+            .: {}
+            f:app: {}
+            f:app.kubernetes.io/component: {}
+            f:app.kubernetes.io/instance: {}
+        f:spec:
+          f:replicas: {}
+          f:selector:
+            .: {}
+            f:deploymentconfig: {}
+          f:strategy:
+            f:activeDeadlineSeconds: {}
+            f:rollingParams:
+              .: {}
+              f:intervalSeconds: {}
+              f:maxSurge: {}
+              f:maxUnavailable: {}
+              f:timeoutSeconds: {}
+              f:updatePeriodSeconds: {}
+            f:type: {}
+          f:template:
+            .: {}
+            f:metadata:
+              .: {}
+              f:annotations:
+                .: {}
+                f:openshift.io/generated-by: {}
+              f:creationTimestamp: {}
+              f:labels:
+                .: {}
+                f:deploymentconfig: {}
+            f:spec:
+              .: {}
+              f:containers:
+                .: {}
+                k:{"name":"tododb"}:
+                  .: {}
+                  f:env:
+                    .: {}
+                    k:{"name":"MYSQL_DATABASE"}:
+                      .: {}
+                      f:name: {}
+                      f:valueFrom:
+                        .: {}
+                        f:secretKeyRef:
+                          .: {}
+                          f:key: {}
+                          f:name: {}
+                    k:{"name":"MYSQL_PASSWORD"}:
+                      .: {}
+                      f:name: {}
+                      f:valueFrom:
+                        .: {}
+                        f:secretKeyRef:
+                          .: {}
+                          f:key: {}
+                          f:name: {}
+                    k:{"name":"MYSQL_USER"}:
+                      .: {}
+                      f:name: {}
+                      f:valueFrom:
+                        .: {}
+                        f:secretKeyRef:
+                          .: {}
+                          f:key: {}
+                          f:name: {}
+                  f:imagePullPolicy: {}
+                  f:name: {}
+                  f:ports:
+                    .: {}
+                    k:{"containerPort":3306,"protocol":"TCP"}:
+                      .: {}
+                      f:containerPort: {}
+                      f:protocol: {}
+                  f:resources: {}
+                  f:terminationMessagePath: {}
+                  f:terminationMessagePolicy: {}
+              f:dnsPolicy: {}
+              f:restartPolicy: {}
+              f:schedulerName: {}
+              f:securityContext: {}
+              f:terminationGracePeriodSeconds: {}
+      manager: oc
+      operation: Update
+      time: "2021-01-29T15:25:43Z"
+    - apiVersion: apps.openshift.io/v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:spec:
+          f:template:
+            f:spec:
+              f:containers:
+                k:{"name":"tododb"}:
+                  f:image: {}
+          f:triggers: {}
+        f:status:
+          f:availableReplicas: {}
+          f:conditions:
+            .: {}
+            k:{"type":"Available"}:
+              .: {}
+              f:lastTransitionTime: {}
+              f:lastUpdateTime: {}
+              f:message: {}
+              f:status: {}
+              f:type: {}
+            k:{"type":"Progressing"}:
+              .: {}
+              f:lastTransitionTime: {}
+              f:lastUpdateTime: {}
+              f:message: {}
+              f:reason: {}
+              f:status: {}
+              f:type: {}
+          f:details:
+            .: {}
+            f:causes: {}
+            f:message: {}
+          f:latestVersion: {}
+          f:observedGeneration: {}
+          f:readyReplicas: {}
+          f:replicas: {}
+          f:unavailableReplicas: {}
+          f:updatedReplicas: {}
+      manager: openshift-controller-manager
+      operation: Update
+      time: "2021-01-29T15:25:58Z"
+    name: tododb
+    namespace: service
+    resourceVersion: "305655"
+    selfLink: /apis/apps.openshift.io/v1/namespaces/service/deploymentconfigs/tododb
+    uid: 7fbe7c15-441d-4d01-b84a-65075912226f
+  spec:
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      deploymentconfig: tododb
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        annotations:
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          deploymentconfig: tododb
+      spec:
+        containers:
+        - env:
+          - name: MYSQL_DATABASE
+            valueFrom:
+              secretKeyRef:
+                key: database
+                name: tododb
+          - name: MYSQL_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: password
+                name: tododb
+          - name: MYSQL_USER
+            valueFrom:
+              secretKeyRef:
+                key: user
+                name: tododb
+          image: registry.access.redhat.com/rhscl/mysql-57-rhel7@sha256:9a781abe7581cc141e14a7e404ec34125b3e89c008b14f4e7b41e094fd3049fe
+          imagePullPolicy: Always
+          name: tododb
+          ports:
+          - containerPort: 3306
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+    test: false
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - tododb
+        from:
+          kind: ImageStreamTag
+          name: tododb:latest
+          namespace: service
+        lastTriggeredImage: registry.access.redhat.com/rhscl/mysql-57-rhel7@sha256:9a781abe7581cc141e14a7e404ec34125b3e89c008b14f4e7b41e094fd3049fe
+      type: ImageChange
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2021-01-29T15:25:55Z"
+      lastUpdateTime: "2021-01-29T15:25:55Z"
+      message: Deployment config has minimum availability.
+      status: "True"
+      type: Available
+    - lastTransitionTime: "2021-01-29T15:25:50Z"
+      lastUpdateTime: "2021-01-29T15:25:58Z"
+      message: replication controller "tododb-2" successfully rolled out
+      reason: NewReplicationControllerAvailable
+      status: "True"
+      type: Progressing
+    details:
+      causes:
+      - type: ConfigChange
+      message: config change
+    latestVersion: 2
+    observedGeneration: 3
+    readyReplicas: 1
+    replicas: 1
+    unavailableReplicas: 0
+    updatedReplicas: 1
+kind: List
+metadata:
+  resourceVersion: ""
+  selfLink: ""

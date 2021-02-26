@@ -1,0 +1,130 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+labels:
+  template: quotesdb
+metadata:
+  name: quotesdb
+objects:
+- apiVersion: image.openshift.io/v1
+  generation: 0
+  image:
+    dockerImageLayers: null
+    dockerImageMetadata: null
+    metadata:
+      creationTimestamp: null
+  kind: ImageStreamTag
+  lookupPolicy:
+    local: false
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+      openshift.io/imported-from: image-registry.openshift-image-registry.svc:5000/openshift/mysql:5.7
+    creationTimestamp: null
+    labels:
+      app: quotesdb
+      app.kubernetes.io/component: quotesdb
+      app.kubernetes.io/instance: quotesdb
+      app.kubernetes.io/name: mysql
+    name: quotesdb:5.7
+  tag:
+    annotations: null
+    from:
+      kind: DockerImage
+      name: image-registry.openshift-image-registry.svc:5000/openshift/mysql:5.7
+    generation: null
+    importPolicy: {}
+    name: "5.7"
+    referencePolicy:
+      type: ""
+- apiVersion: apps.openshift.io/v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    labels:
+      app: quotesdb
+      app.kubernetes.io/component: quotesdb
+      app.kubernetes.io/instance: quotesdb
+      app.kubernetes.io/name: mysql
+    name: quotesdb
+  spec:
+    replicas: 1
+    selector:
+      deploymentconfig: quotesdb
+    strategy:
+      resources: {}
+    template:
+      metadata:
+        annotations:
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          deploymentconfig: quotesdb
+      spec:
+        containers:
+        - env:
+          - name: MYSQL_NAME
+            value: quotesdb
+          - name: MYSQL_PASSWORD
+            value: redhat
+          - name: MYSQL_DATABASE
+            value: quotesdb
+          - name: MYSQL_USER
+            value: quoteapp
+          image: image-registry.openshift-image-registry.svc:5000/openshift/mysql:5.7
+          name: quotesdb
+          ports:
+          - containerPort: 3306
+            protocol: TCP
+          resources: {}
+          volumeMounts:
+          - mountPath: /var/mysql/data
+            name: vol
+        volumes:
+        - name: vol
+          persistentVolumeClaim:
+            claimName: pvc-vol
+    test: false
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - quotesdb
+        from:
+          kind: ImageStreamTag
+          name: mysql:5.7
+          namespace: openshift
+      type: ImageChange
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    labels:
+      app: quotesdb
+      app.kubernetes.io/component: quotesdb
+      app.kubernetes.io/instance: quotesdb
+      app.kubernetes.io/name: mysql
+    name: quotesdb
+  spec:
+    ports:
+    - name: 3306-tcp
+      port: 3306
+      protocol: TCP
+      targetPort: 3306
+    selector:
+      deploymentconfig: quotesdb
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    name: pvc-vol
+  spec:
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: 1Gi
+parameters: []

@@ -1,0 +1,80 @@
+# Please edit the object below. Lines beginning with a '#' will be ignored,
+# and an empty file will abort the edit. If an error occurs while saving this file will be
+# reopened with the relevant failures.
+#
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  annotations:
+    openshift.io/generated-by: OpenShiftNewApp
+  creationTimestamp: "2021-02-22T15:29:39Z"
+  generation: 7
+  labels:
+    app: mysql
+    app.kubernetes.io/component: mysql
+    app.kubernetes.io/instance: mysql
+  name: mysql
+  namespace: strategy
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    deploymentconfig: mysql
+  strategy:
+    activeDeadlineSeconds: 21600
+    recreateParams:
+      post:
+        execNewPod:
+          command:
+          - /bin/sh
+          - -c
+          - curl -L -s https://github.com/RedHatTraining/DO288-apps/releases/download/OCP-4.1-1/import.sh -o /tmp/import.sh&&chmod 755 /tmp/import.sh&&/tmp/import.sh
+          containerName: mysql
+        failurePolicy: Abort
+      timeoutSeconds: 600
+    resources: {}
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        openshift.io/generated-by: OpenShiftNewApp
+      creationTimestamp: null
+      labels:
+        deploymentconfig: mysql
+    spec:
+      containers:
+      - env:
+        - name: MYSQL_DATABASE
+          value: testdb
+        - name: MYSQL_PASSWORD
+          value: mypass
+        - name: MYSQL_USER
+          value: test
+        - name: HOOK_RETRIES
+          value: '3'
+        image: registry.access.redhat.com/rhscl/mysql-57-rhel7@sha256:9a781abe7581cc141e14a7e404ec34125b3e89c008b14f4e7b41e094fd3049fe
+        imagePullPolicy: Always
+        name: mysql
+        ports:
+        - containerPort: 3306
+          protocol: TCP
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+  test: false
+  triggers:
+  - imageChangeParams:
+      automatic: true
+      containerNames:
+      - mysql
+      from:
+        kind: ImageStreamTag
+        name: mysql:latest
+        namespace: strategy
+      lastTriggeredImage: registry.access.redhat.com/rhscl/mysql-57-rhel7@sha256:9a781abe7581cc141e14a7e404ec34125b3e89c008b14f4e7b41e094fd3049fe
+    type: ImageChange

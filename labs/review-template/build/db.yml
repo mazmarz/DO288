@@ -1,0 +1,262 @@
+apiVersion: template.openshift.io/v1
+kind:     Template
+labels:
+  template: mysql
+metadata:
+  name: mysql
+objects:
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    name: pvc-vol
+  spec:
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: 1Gi
+- apiVersion: v1
+  kind: Secret
+  metadata:
+    name: todo-sec
+  stringData:
+    user: todoapp
+    password: mypass
+- apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    name: todo-env
+  data:
+    init: 'true'
+    name: todo
+    svc: tododb
+- apiVersion: apps.openshift.io/v1
+  kind: DeploymentConfig
+  metadata:
+    labels:
+      app: tododb
+      app.kubernetes.io/component: tododb
+      app.kubernetes.io/instance: tododb
+      app.kubernetes.io/name: mysql
+    name: tododb
+  spec:
+    replicas: 1
+    selector:
+      deploymentconfig: tododb
+    strategy:
+      resources: {}
+    template:
+      metadata:
+        annotations:
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          deploymentconfig: tododb
+      spec:
+        containers:
+        - image: image-registry.openshift-image-registry.svc:5000/openshift/mysql:5.7
+          name: tododb
+          ports:
+          - containerPort: 3306
+            protocol: TCP
+          resources: {}
+          volumeMounts:
+          - mountPath: /var/mysql/data
+            name: vol1
+          env:
+          - name: MYSQL_USER
+            value: todoapp
+          - name: MYSQL_PASSWORD
+            value: mypass
+          - name: MYSQL_DATABASE
+            value: todo
+        volumes:
+        - name: vol1
+          persistentVolumeClaim:
+            claimName: pvc-vol
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - tododb
+        from:
+          kind: ImageStreamTag
+          name: mysql:5.7
+          namespace: openshift
+      type: ImageChange
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      app: tododb
+      app.kubernetes.io/component: tododb
+      app.kubernetes.io/instance: tododb
+      app.kubernetes.io/name: mysql
+    name: tododb
+  spec:
+    ports:
+    - name: 3306-tcp
+      port: 3306
+      protocol: TCP
+      targetPort: 3306
+    selector:
+      deploymentconfig: tododb
+- apiVersion: image.openshift.io/v1
+  kind: ImageStream
+  metadata:
+    labels:
+      app: todo
+      app.kubernetes.io/component: todo
+      app.kubernetes.io/instance: todo
+    name: todo
+  spec:
+    lookupPolicy:
+      local: false
+- apiVersion: build.openshift.io/v1
+  kind: BuildConfig
+  metadata:
+    labels:
+      app: todo
+      app.kubernetes.io/component: todo
+      app.kubernetes.io/instance: todo
+    name: todo
+  spec:
+    nodeSelector: null
+    output:
+      to:
+        kind: ImageStreamTag
+        name: todo:latest
+    postCommit: {}
+    resources: {}
+    source:
+      contextDir: todo-single
+      git:
+        uri: https://github.com/mazmarz/DO288-apps-v1
+      type: Git
+    strategy:
+      sourceStrategy:
+        from:
+          kind: ImageStreamTag
+          name: nodejs:12
+          namespace: openshift
+      type: Source
+    triggers:
+    - github:
+        secret: ${SECRET}
+      type: GitHub
+    - generic:
+        secret: ${SECRET}
+      type: Generic
+    - type: ConfigChange
+    - imageChange: {}
+      type: ImageChange
+- apiVersion: apps.openshift.io/v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    labels:
+      app: todo
+      app.kubernetes.io/component: todo
+      app.kubernetes.io/instance: todo
+    name: todo
+  spec:
+    replicas: 1
+    selector:
+      deploymentconfig: todo
+    strategy:
+      resources: {}
+    template:
+      metadata:
+        annotations:
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          deploymentconfig: todo
+      spec:
+        containers:
+        - image: todo:latest
+          name: todo
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          resources: {}
+          env:
+          - name: DATABASE_USER
+            valueFrom:
+              secretKeyRef:
+                key: user
+                name: todo-sec
+          - name: DATABASE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: password
+                name: todo-sec
+          - name: DATABASE_SVC
+            valueFrom:
+              configMapKeyRef:
+                key: svc
+                name: todo-env
+          - name: DATABASE_NAME
+            valueFrom:
+              configMapKeyRef:
+                key: name
+                name: todo-env
+          - name: DATABASE_INIT
+            valueFrom:
+              configMapKeyRef:
+                key: init
+                name: todo-env
+    test: false
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - todo
+        from:
+          kind: ImageStreamTag
+          name: todo:latest
+      type: ImageChange
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      app: todo
+      app.kubernetes.io/component: todo
+      app.kubernetes.io/instance: todo
+    name: todo
+  spec:
+    ports:
+    - name: 8080-tcp
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      deploymentconfig: todo
+  status:
+    loadBalancer: {}
+- apiVersion: route.openshift.io/v1
+  kind: Route
+  metadata:
+    creationTimestamp: null
+    labels:
+      app: todo
+      app.kubernetes.io/component: todo
+      app.kubernetes.io/instance: todo
+      template: mysql
+    name: todo
+  spec:
+    port:
+      targetPort: 8080-tcp
+    to:
+      kind: ""
+      name: todo
+      weight: null
+parameters:
+- name: SECRET
+  description: "I have a secrete"
+  generate: expression
+  from: '[0-9]{8}'

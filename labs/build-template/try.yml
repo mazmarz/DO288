@@ -1,0 +1,49 @@
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  annotations:
+    openshift.io/generated-by: OpenShiftNewBuild
+  creationTimestamp: "2021-02-08T22:44:34Z"
+  labels:
+    build: try
+  - apiVersion: build.openshift.io/v1
+    operation: Update
+    time: "2021-02-08T22:44:35Z"
+  name: try
+  namespace: quotes
+spec:
+  failedBuildsHistoryLimit: 5
+  nodeSelector: null
+  output:
+    to:
+      kind: ImageStreamTag
+      name: try:latest
+  postCommit: {}
+  resources: {}
+  runPolicy: Serial
+  source:
+    contextDir: quotedb
+    git:
+      ref: quotedb
+      uri: https://github.com/mazmarz/DO288-apps-v1.git
+    type: Git
+  strategy:
+    dockerStrategy:
+      from:
+        kind: ImageStreamTag
+        name: mysql-57-rhel7:latest
+    type: Docker
+  successfulBuildsHistoryLimit: 5
+  triggers:
+  - github:
+      secret: YNwYuXVbtTNWq4nRhBiN
+    type: GitHub
+  - generic:
+      secret: -rsFTUUdZt02guR7kiZV
+    type: Generic
+  - type: ConfigChange
+  - imageChange:
+      lastTriggeredImageID: registry.access.redhat.com/rhscl/mysql-57-rhel7@sha256:9a781abe7581cc141e14a7e404ec34125b3e89c008b14f4e7b41e094fd3049fe
+    type: ImageChange
+status:
+  lastVersion: 1

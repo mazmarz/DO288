@@ -1,0 +1,4 @@
+mysql_user=quoteapp
+mysql_password=redhat
+mysql_name=quotesdb
+mysql_service_name=quotesdb

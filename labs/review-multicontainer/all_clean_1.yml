@@ -1,0 +1,311 @@
+apiVersion: templates.openshift.io/v1
+kind: Template
+metadata:
+  name: todo-template
+objects:
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      annotations:
+        openshift.io/host.generated: "true"
+      labels:
+        app: be
+      name: be
+      namespace: multiservice
+    spec:
+      host: be-service.apps.cluster-e448.sandbox254.opentlc.com
+      port:
+        targetPort: 8080-tcp
+      to:
+        kind: Service
+        name: be
+        weight: 100
+      wildcardPolicy: None
+  - apiVersion: image.openshift.io/v1
+    kind: ImageStream
+    metadata:
+      annotations:
+        openshift.io/generated-by: OpenShiftNewApp
+      labels:
+        app: be
+      name: be
+      namespace: multiservice
+    spec:
+      lookupPolicy:
+        local: false
+  - apiVersion: image.openshift.io/v1
+    kind: ImageStream
+    metadata:
+      annotations:
+        openshift.io/generated-by: OpenShiftNewApp
+        openshift.io/image.dockerRepositoryCheck: "2021-01-29T15:20:14Z"
+      labels:
+        app: tododb
+        app.kubernetes.io/component: tododb
+        app.kubernetes.io/instance: tododb
+      name: tododb
+      namespace: multiservice
+    spec:
+      lookupPolicy:
+        local: false
+      tags:
+        - annotations:
+            openshift.io/imported-from: registry.access.redhat.com/rhscl/mysql-57-rhel7
+          from:
+            kind: DockerImage
+            name: registry.access.redhat.com/rhscl/mysql-57-rhel7
+          importPolicy: {}
+          name: latest
+          referencePolicy:
+            type: Source
+  - apiVersion: build.openshift.io/v1
+    kind: BuildConfig
+    metadata:
+      annotations:
+        openshift.io/generated-by: OpenShiftNewApp
+      labels:
+        app: be
+      name: be
+      namespace: multiservice
+    spec:
+      failedBuildsHistoryLimit: 5
+      nodeSelector: null
+      output:
+        to:
+          kind: ImageStreamTag
+          name: be:latest
+      postCommit: {}
+      resources: {}
+      runPolicy: Serial
+      source:
+        contextDir: todo-backend
+        git:
+          ref: todo-backend
+          uri: https://github.com/mazmarz/DO288-apps
+        type: Git
+      strategy:
+        sourceStrategy:
+          from:
+            kind: ImageStreamTag
+            name: nodejs:12
+            namespace: multiservice
+        type: Source
+      successfulBuildsHistoryLimit: 5
+      triggers:
+        - github:
+            secret: R05ZGCQ2XEp8wD-dN_Rf
+          type: GitHub
+        - generic:
+            secret: TQ1h26rS5hgogcCStMxf
+          type: Generic
+        - type: ConfigChange
+        - imageChange:
+            lastTriggeredImageID: image-registry.openshift-image-registry.svc:5000/openshift/nodejs@sha256:9b0daafe22b29cace705d726e2b458346b81484026fbc7812f56511a49a0a143
+          type: ImageChange
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      annotations:
+        openshift.io/generated-by: OpenShiftNewApp
+      labels:
+        app: be
+      name: be
+      namespace: multiservice
+    spec:
+      ports:
+        - name: 8080-tcp
+          port: 8080
+          protocol: TCP
+          targetPort: 8080
+      selector:
+        app: be
+        deploymentconfig: be
+      sessionAffinity: None
+      type: ClusterIP
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      annotations:
+        openshift.io/generated-by: OpenShiftNewApp
+      labels:
+        app: tododb
+        app.kubernetes.io/component: tododb
+        app.kubernetes.io/instance: tododb
+      name: tododb
+      namespace: multiservice
+    spec:
+      ports:
+        - name: 3306-tcp
+          port: 3306
+          protocol: TCP
+          targetPort: 3306
+      selector:
+        deploymentconfig: tododb
+      sessionAffinity: None
+      type: ClusterIP
+  - apiVersion: apps.openshift.io/v1
+    kind: DeploymentConfig
+    metadata:
+      annotations:
+        openshift.io/generated-by: OpenShiftNewApp
+      labels:
+        app: be
+      name: be
+      namespace: multiservice
+    spec:
+      replicas: 1
+      revisionHistoryLimit: 10
+      selector:
+        app: be
+        deploymentconfig: be
+      strategy:
+        activeDeadlineSeconds: 21600
+        resources: {}
+        rollingParams:
+          intervalSeconds: 1
+          maxSurge: 25%
+          maxUnavailable: 25%
+          timeoutSeconds: 600
+          updatePeriodSeconds: 1
+        type: Rolling
+      template:
+        metadata:
+          annotations:
+            openshift.io/generated-by: OpenShiftNewApp
+          creationTimestamp: null
+          labels:
+            app: be
+            deploymentconfig: be
+        spec:
+          containers:
+            - env:
+                - name: DATABASE_DATABASE
+                  valueFrom:
+                    secretKeyRef:
+                      key: database
+                      name: tododb
+                - name: DATABASE_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: password
+                      name: tododb
+                - name: DATABASE_SVC
+                  valueFrom:
+                    secretKeyRef:
+                      key: svc
+                      name: tododb
+                - name: DATABASE_USER
+                  valueFrom:
+                    secretKeyRef:
+                      key: user
+                      name: tododb
+                - name: DATABASE_INIT
+                  valueFrom:
+                    configMapKeyRef:
+                      key: init
+                      name: tododb
+                - name: DATABASE_NAME
+                  value: todo
+              image: image-registry.openshift-image-registry.svc:5000/service/be@sha256:d0dea3a488f43be0d5617fcf90f60858adcd8e37c503ef757640e1972322c05e
+              imagePullPolicy: Always
+              name: be
+              ports:
+                - containerPort: 8080
+                  protocol: TCP
+              resources: {}
+              terminationMessagePath: /dev/termination-log
+              terminationMessagePolicy: File
+          dnsPolicy: ClusterFirst
+          restartPolicy: Always
+          schedulerName: default-scheduler
+          securityContext: {}
+          terminationGracePeriodSeconds: 30
+      test: false
+      triggers:
+        - imageChangeParams:
+            containerNames:
+              - be
+            from:
+              kind: ImageStreamTag
+              name: be:latest
+              namespace: multiservice
+            lastTriggeredImage: image-registry.openshift-image-registry.svc:5000/service/be@sha256:d0dea3a488f43be0d5617fcf90f60858adcd8e37c503ef757640e1972322c05e
+          type: ImageChange
+  - apiVersion: apps.openshift.io/v1
+    kind: DeploymentConfig
+    metadata:
+      annotations:
+        openshift.io/generated-by: OpenShiftNewApp
+      labels:
+        app: tododb
+        app.kubernetes.io/component: tododb
+        app.kubernetes.io/instance: tododb
+      name: tododb
+      namespace: multiservice
+    spec:
+      replicas: 1
+      revisionHistoryLimit: 10
+      selector:
+        deploymentconfig: tododb
+      strategy:
+        activeDeadlineSeconds: 21600
+        resources: {}
+        rollingParams:
+          intervalSeconds: 1
+          maxSurge: 25%
+          maxUnavailable: 25%
+          timeoutSeconds: 600
+          updatePeriodSeconds: 1
+        type: Rolling
+      template:
+        metadata:
+          annotations:
+            openshift.io/generated-by: OpenShiftNewApp
+          creationTimestamp: null
+          labels:
+            deploymentconfig: tododb
+        spec:
+          containers:
+            - env:
+                - name: MYSQL_DATABASE
+                  valueFrom:
+                    secretKeyRef:
+                      key: database
+                      name: tododb
+                - name: MYSQL_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: password
+                      name: tododb
+                - name: MYSQL_USER
+                  valueFrom:
+                    secretKeyRef:
+                      key: user
+                      name: tododb
+              image: registry.access.redhat.com/rhscl/mysql-57-rhel7@sha256:9a781abe7581cc141e14a7e404ec34125b3e89c008b14f4e7b41e094fd3049fe
+              imagePullPolicy: Always
+              name: tododb
+              ports:
+                - containerPort: 3306
+                  protocol: TCP
+              resources: {}
+              terminationMessagePath: /dev/termination-log
+              terminationMessagePolicy: File
+          dnsPolicy: ClusterFirst
+          restartPolicy: Always
+          schedulerName: default-scheduler
+          securityContext: {}
+          terminationGracePeriodSeconds: 30
+      test: false
+      triggers:
+        - type: ConfigChange
+        - imageChangeParams:
+            automatic: true
+            containerNames:
+              - tododb
+            from:
+              kind: ImageStreamTag
+              name: tododb:latest
+              namespace: multiservice
+            lastTriggeredImage: registry.access.redhat.com/rhscl/mysql-57-rhel7@sha256:9a781abe7581cc141e14a7e404ec34125b3e89c008b14f4e7b41e094fd3049fe
+          type: ImageChange

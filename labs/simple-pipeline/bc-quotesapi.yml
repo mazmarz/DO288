@@ -1,0 +1,53 @@
+# Please edit the object below. Lines beginning with a '#' will be ignored,
+# and an empty file will abort the edit. If an error occurs while saving this file will be
+# reopened with the relevant failures.
+#
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  annotations:
+    openshift.io/generated-by: OpenShiftNewApp
+  creationTimestamp: "2021-01-15T22:35:40Z"
+  labels:
+    app: quotesapi
+  name: quotesapi
+  namespace: quotes-template
+  resourceVersion: "468718"
+  selfLink: /apis/build.openshift.io/v1/namespaces/quotes-template/buildconfigs/quotesapi
+  uid: 35b5062f-dc07-4fb5-b72e-d69f2cc26929
+spec:
+  failedBuildsHistoryLimit: 5
+  nodeSelector: null
+  output:
+    to:
+      kind: ImageStreamTag
+      name: quotesapi:latest
+  postCommit: {}
+  resources: {}
+  runPolicy: Serial
+  source:
+    contextDir: quotes
+    git:
+      uri: https://github.com/mazmarz/DO288-apps
+    type: Git
+  strategy:
+    sourceStrategy:
+      from:
+        kind: ImageStreamTag
+        name: php:7.2
+        namespace: openshift
+    type: Source
+  successfulBuildsHistoryLimit: 5
+  triggers:
+  - github:
+      secret: 12dk69js-f
+    type: GitHub
+  - generic:
+      secret: 12dk69js-f
+    type: Generic
+  - type: ConfigChange
+  - imageChange:
+      lastTriggeredImageID: image-registry.openshift-image-registry.svc:5000/openshift/php@sha256:cee55e4fa48f3536b478789018d466eb417ddb8360d0608f3d48cb5b72a77fca
+    type: ImageChange
+status:
+  lastVersion: 1
